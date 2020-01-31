@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+    <!--axios网络请求-->
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+</head>
+<body>
+    <div id="app">
+        <div>
+            <marquee behavior="" direction="left" width="215">
+                <font color="red" size="24">AXIN音乐</font>
+            </marquee>
+        </div>
+        <input type="text" v-model="song" @keyup.enter="search"
+               style="padding: 7px 7px; outline-style: none; border: 1px solid lightblue;
+                border-radius: 3px; width: 200px; font-size: 16px">
+        <button @click="search">搜索</button>
+        <br>
+        <p v-show="songsList.length != 0">搜索结果</p>
+        <div>
+            <ul>
+                <li v-for="item in songsList">
+                    <a href="#" @click="playMusic(item.id)" style="text-decoration: none">{{item.name}}</a>
+                </li>
+            </ul>
+        </div>
+        <div>
+            <audio :src="musicUrl" controls autoplay loop v-show="songsList.length != 0"
+                   style="width: 400px"></audio>
+        </div>
+    </div>
+    <!--
+        接口:歌曲搜索
+        请求地址:https://autumnfish.cn/search
+        请求方法:get
+        请求参数:keywords(查询关键字)
+        相应内容:歌曲搜索结果
+    -->
+    <!--
+        接口:歌曲url获取
+        请求地址:https://autumnfish.cn/song/url
+        请求方法:get
+        请求参数:id(歌曲id)
+        相应内容:歌曲url地址
+    -->
+</body>
+<script>
+    let app = new Vue({
+        el: "#app",
+        //需要的参数都放在这里面
+        data: {
+            song: "",
+            songsList: [],
+            musicUrl: null,
+        },
+        methods: {
+            search: function () {
+                let that = this;
+                axios.get("https://autumnfish.cn/search?keywords=" + this.song)
+                    .then(function (response) {
+                        // console.log(response.data.result.songs);歌曲列表
+                        that.songsList = response.data.result.songs;
+                    }).catch(function (err) {
+
+                })
+            },
+            playMusic: function (musicId) {
+                let that = this;
+                axios.get("https://autumnfish.cn/song/url?id=" + musicId)
+                    .then(function (response) {
+                        // console.log(response.data.data[0].url);歌曲地址
+                        that.musicUrl = response.data.data[0].url;
+                    }).catch(function (err) {
+
+                })
+            }
+        }
+
+    })
+</script>
+</html>
